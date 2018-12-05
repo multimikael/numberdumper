@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() => runApp(NDApp());
+void main() {
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+      .then((_) {
+        runApp(NDApp());
+      });
+}
 
 class NDApp extends StatelessWidget {
 
@@ -28,15 +34,26 @@ class SharedPreferencesHelper {
   static final _highestAvailLevel = "hal";
   static final _isMusicEnabled = "isMusicEnabled";
   static final _isSoundEnabled = "isSoundEnabled";
+  static final _isHintAvail = "hint";
 
-  static Future<bool> setHighestAvailLevel(int lvl) async {
+  static Future<bool> setHighestAvailLevel(int level) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.setInt(_highestAvailLevel, lvl);
+    return prefs.setInt(_highestAvailLevel, level);
+  }
+
+  static Future<bool> setIsHintAvail(int level, bool value) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.setBool(_isHintAvail+level.toString(), value);
   }
 
   static Future<int> getHighestAvailLevel() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getInt(_highestAvailLevel) ?? 1;
+  }
+
+  static Future<bool> getIsHintAvail(int level) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_isHintAvail+level.toString()) ?? false;
   }
 
   static Future<bool> getIsMusicEnabled() async {
@@ -62,21 +79,25 @@ class _MainScreenState extends State<MainScreen> {
 
   final textStyle = TextStyle(color: Colors.white);
   final answers = [1,2,3,4];
+  final answerController = TextEditingController();
   int _currLevel;
+  bool _isHintAvail;
 
-  _initialLevel() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _currLevel = prefs.getInt("hal") ?? 1;
-    });
-
+  _MainScreenState() {
+    SharedPreferencesHelper.getHighestAvailLevel()
+        .then((int value) {setState(() {_currLevel = value;});});
+    SharedPreferencesHelper.getIsHintAvail(_currLevel)
+        .then((bool value) {setState(() {_isHintAvail = value;});});
   }
 
   List<Widget> buttonsFromList(List<int> list) {
     List<Widget> btns = List();
     for (int i in list) {
-      btns.add(RaisedButton(onPressed: null,
-          child: Text(i.toString(), style: textStyle)));
+      btns.add(Expanded(child: FlatButton(
+          onPressed: () {
+            answerController.text += i.toString();
+          },
+          child: Text(i.toString(), style: textStyle))));
     }
     return btns;
   }
@@ -92,7 +113,16 @@ class _MainScreenState extends State<MainScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             FlatButton(child: Text("Hint",
-                style: textStyle), onPressed: null),
+                style: textStyle),
+                onPressed: () {
+                  print(_isHintAvail);
+                  if (_isHintAvail) {
+                    //TODO: Show hint
+                  } else {
+                    SharedPreferencesHelper.setIsHintAvail(_currLevel, true);
+                    setState(() {_isHintAvail = true;});
+                  }
+                }),
             FlatButton(child: Text("Settings",
                 style: textStyle),
                 onPressed: () {Navigator.pushNamed(context, '/settings');},
@@ -102,37 +132,64 @@ class _MainScreenState extends State<MainScreen> {
       ),
       body: Container(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Center(child: Text("$_currLevel")),
+            Expanded(
+              child: Text("$_currLevel"),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 Expanded(
-                  child: Text("", style: textStyle,
-                    textDirection: TextDirection.rtl,),
+                  child: TextField(
+                    style: textStyle,
+                    //Remove underline
+                    decoration: InputDecoration.collapsed(hintText: null),
+                    textDirection: TextDirection.rtl,
+                    controller: answerController,),
                 ),
-                RaisedButton(
-                  child: Text("v", style: textStyle), onPressed: () {
+                IconButton(
+                  icon: Icon(Icons.backspace),
+                  color: Colors.white,
+                  onPressed: () {
                     setState(() {
-                      _currLevel++;
+                      answerController.text = answerController.text
+                          .substring(0, answerController.text.length-1);
                     });
-                },),
-                RaisedButton(
-                  child: Text("<-", style: textStyle),
-                  onPressed: null,),
+                  },),
 
               ],
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: buttonsFromList([0,1,2,3,4]),
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: buttonsFromList([0,1,2,3,4]),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: buttonsFromList([5,6,7,8,9]),
+                      ),
+                    ],),),
+                Column(children: <Widget>[
+                  IconButton(
+                    icon: Icon(Icons.check),
+                    color: Colors.white,
+                    onPressed: () {
+                      // current level-1 since index starts at 0
+                      if (answerController.text ==
+                          answers[_currLevel-1].toString()) {
+                        setState(() {_currLevel++;});
+                      }
+                      answerController.text = "";
+                    },),
+                  ],)],
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: buttonsFromList([5,6,7,8,9]),
-            ),
-
           ],
         ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
@@ -183,5 +240,4 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-
 }
