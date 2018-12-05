@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:numberdumper/NDModel.dart';
+import 'package:scoped_model/scoped_model.dart';
+import 'package:numberdumper/settings_screen.dart';
 
 void main() {
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
@@ -13,57 +15,23 @@ class NDApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Number Dumper',
-      theme: ThemeData(
-        canvasColor: Colors.grey[800],
-        primaryColor: Colors.grey[800],
-        buttonTheme: ButtonThemeData(
-          minWidth: 30.0)
+    return ScopedModel(
+      model: NDModel(),
+      child: MaterialApp(
+        title: 'Number Dumper',
+        theme: ThemeData(
+            canvasColor: Colors.grey[800],
+            primaryColor: Colors.grey[800],
+            buttonTheme: ButtonThemeData(
+                minWidth: 30.0)
+        ),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => MainScreen(),
+          '/settings': (context) => SettingsScreen(),
+        },
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => MainScreen(),
-        '/settings': (context) => SettingsScreen(),
-      },
     );
-  }
-}
-
-class SharedPreferencesHelper {
-  static final _highestAvailLevel = "hal";
-  static final _isMusicEnabled = "isMusicEnabled";
-  static final _isSoundEnabled = "isSoundEnabled";
-  static final _isHintAvail = "hint";
-
-  static Future<bool> setHighestAvailLevel(int level) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.setInt(_highestAvailLevel, level);
-  }
-
-  static Future<bool> setIsHintAvail(int level, bool value) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.setBool(_isHintAvail+level.toString(), value);
-  }
-
-  static Future<int> getHighestAvailLevel() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getInt(_highestAvailLevel) ?? 1;
-  }
-
-  static Future<bool> getIsHintAvail(int level) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_isHintAvail+level.toString()) ?? false;
-  }
-
-  static Future<bool> getIsMusicEnabled() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_isMusicEnabled) ?? true;
-  }
-
-  static Future<bool> getIsSoundEnabled() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_isSoundEnabled) ?? true;
   }
 }
 
@@ -77,18 +45,9 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
 
-  final textStyle = TextStyle(color: Colors.white);
   final answers = [1,2,3,4];
+  final textStyle = TextStyle(color: Colors.white);
   final answerController = TextEditingController();
-  int _currLevel;
-  bool _isHintAvail;
-
-  _MainScreenState() {
-    SharedPreferencesHelper.getHighestAvailLevel()
-        .then((int value) {setState(() {_currLevel = value;});});
-    SharedPreferencesHelper.getIsHintAvail(_currLevel)
-        .then((bool value) {setState(() {_isHintAvail = value;});});
-  }
 
   List<Widget> buttonsFromList(List<int> list) {
     List<Widget> btns = List();
@@ -112,17 +71,20 @@ class _MainScreenState extends State<MainScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            FlatButton(child: Text("Hint",
-                style: textStyle),
-                onPressed: () {
-                  print(_isHintAvail);
-                  if (_isHintAvail) {
-                    //TODO: Show hint
-                  } else {
-                    SharedPreferencesHelper.setIsHintAvail(_currLevel, true);
-                    setState(() {_isHintAvail = true;});
-                  }
-                }),
+            ScopedModelDescendant<NDModel>(
+              builder: (context, _, model) =>
+                  FlatButton(child: Text("Hint",
+                  style: textStyle),
+                  onPressed: () {
+                    print(model.isHintAvail);
+                    print(model.currLevel);
+                    if (model.isHintAvail) {
+                      //TODO: Show hint
+                    } else {
+                      model.setIsHintAvail(true);
+                    }
+                  }),
+            ),
             FlatButton(child: Text("Settings",
                 style: textStyle),
                 onPressed: () {Navigator.pushNamed(context, '/settings');},
@@ -135,7 +97,9 @@ class _MainScreenState extends State<MainScreen> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Expanded(
-              child: Text("$_currLevel"),
+              child: ScopedModelDescendant<NDModel>(
+                  builder: (context, _, model) =>
+                      Text(model.currLevel.toString())),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -177,67 +141,22 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                     ],),),
                 Column(children: <Widget>[
-                  IconButton(
-                    icon: Icon(Icons.check),
-                    color: Colors.white,
-                    onPressed: () {
-                      // current level-1 since index starts at 0
-                      if (answerController.text ==
-                          answers[_currLevel-1].toString()) {
-                        setState(() {_currLevel++;});
-                      }
-                      answerController.text = "";
-                    },),
-                  ],)],
+                  ScopedModelDescendant<NDModel>(builder: (context, _, model) =>
+                      IconButton(
+                        icon: Icon(Icons.check),
+                        color: Colors.white,
+                        onPressed: () {
+                          // current level-1 since index starts at 0
+                          if (answerController.text ==
+                              answers[model.currLevel-1].toString()) {
+                            model.nextLevel();
+                          }
+                          answerController.text = "";
+                        },)),],)],
             ),
           ],
         ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
-  }
-}
-
-class SettingsScreen extends StatefulWidget {
-
-  SettingsScreen({Key key}) : super(key: key);
-
-  @override
-  _SettingsScreenState createState() => _SettingsScreenState();
-}
-
-class _SettingsScreenState extends State<SettingsScreen> {
-
-  final textStyleON = TextStyle(color: Colors.white,
-      decoration: TextDecoration.underline, decorationColor: Colors.blue);
-
-  final textStyle = TextStyle(color: Colors.white);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(elevation: 0.0,),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text("Music"),
-              FlatButton(child: Text("ON", style: textStyleON,),
-                onPressed: null,)
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text("Sound FX"),
-              FlatButton(child: Text("ON", style: textStyleON,),
-                onPressed: null,)
-            ],
-          ),
-        ],
-      ),
     );
   }
 }
