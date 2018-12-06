@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:numberdumper/NDModel.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:numberdumper/settings_screen.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 void main() {
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
@@ -99,8 +100,8 @@ class _MainScreenState extends State<MainScreen> {
             Expanded(
               child: ScopedModelDescendant<NDModel>(
                   builder: (context, _, model) =>
-                      Image(image: AssetImage('assets/level' +
-                          model.currLevel.toString()),)),
+                      SvgPicture.asset('assets/level' +
+                          model.currLevel.toString() + '.svg')),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
