@@ -25,6 +25,11 @@ class NDModel extends Model {
 
   void nextLevel() {
     currLevel++;
+    SharedPreferencesHelper.getHighestAvailLevel().then((int value) {
+      if (currLevel > value ) {
+        SharedPreferencesHelper.setHighestAvailLevel(currLevel);
+      }
+    });
     notifyListeners();
   }
 }
