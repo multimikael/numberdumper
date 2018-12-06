@@ -68,40 +68,43 @@ class _MainScreenState extends State<MainScreen> {
       appBar: AppBar(
         elevation: 0.0,
         automaticallyImplyLeading: false,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            ScopedModelDescendant<NDModel>(
-              builder: (context, _, model) =>
-                  FlatButton(child: Text("Hint",
+        title: Padding(padding: EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              ScopedModelDescendant<NDModel>(
+                builder: (context, _, model) =>
+                    FlatButton(child: Text("Hint",
+                        style: textStyle),
+                        onPressed: () {
+                          print(model.isHintAvail);
+                          print(model.getCurrentLevel());
+                          if (model.isHintAvail) {
+                            //TODO: Show hint
+                          } else {
+                            model.setIsHintAvail(true);
+                          }
+                        }),
+              ),
+              FlatButton(child: Text("Settings",
                   style: textStyle),
-                  onPressed: () {
-                    print(model.isHintAvail);
-                    print(model.getCurrentLevel());
-                    if (model.isHintAvail) {
-                      //TODO: Show hint
-                    } else {
-                      model.setIsHintAvail(true);
-                    }
-                  }),
-            ),
-            FlatButton(child: Text("Settings",
-                style: textStyle),
                 onPressed: () {Navigator.pushNamed(context, '/settings');},
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),)
       ),
-      body: Container(
+      body: Padding(
+        padding: EdgeInsets.all(8.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Expanded(
-              child: ScopedModelDescendant<NDModel>(
-                  builder: (context, _, model) =>
-                      SvgPicture.asset('assets/level' +
-                          model.getCurrentLevel().toString() + '.svg')),
+              child: Padding(padding: EdgeInsets.all(32.0),
+                child: ScopedModelDescendant<NDModel>(
+                    builder: (context, _, model) =>
+                        SvgPicture.asset('assets/level' +
+                            model.getCurrentLevel().toString() + '.svg')),)
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -111,7 +114,8 @@ class _MainScreenState extends State<MainScreen> {
                     style: textStyle,
                     //Remove underline
                     decoration: InputDecoration.collapsed(hintText: null),
-                    textDirection: TextDirection.rtl,
+                    textDirection: TextDirection.ltr,
+                    textAlign: TextAlign.center,
                     controller: answerController,),
                 ),
                 IconButton(
@@ -145,6 +149,7 @@ class _MainScreenState extends State<MainScreen> {
                 Column(children: <Widget>[
                   ScopedModelDescendant<NDModel>(builder: (context, _, model) =>
                       IconButton(
+                        highlightColor: Colors.green,
                         icon: Icon(Icons.check),
                         color: Colors.white,
                         onPressed: () {
