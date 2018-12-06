@@ -45,7 +45,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
 
-  final answers = [1,2,3,4];
+  final answers = [8,8,7,8,13,1,12,25,17,9,128,11,13,3,2,50,36,4,9,25,20,1,21,7];
   final textStyle = TextStyle(color: Colors.white);
   final answerController = TextEditingController();
 
