@@ -78,7 +78,7 @@ class _MainScreenState extends State<MainScreen> {
                   style: textStyle),
                   onPressed: () {
                     print(model.isHintAvail);
-                    print(model.currLevel);
+                    print(model.getCurrentLevel());
                     if (model.isHintAvail) {
                       //TODO: Show hint
                     } else {
@@ -101,7 +101,7 @@ class _MainScreenState extends State<MainScreen> {
               child: ScopedModelDescendant<NDModel>(
                   builder: (context, _, model) =>
                       SvgPicture.asset('assets/level' +
-                          model.currLevel.toString() + '.svg')),
+                          model.getCurrentLevel().toString() + '.svg')),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,

@@ -19,6 +19,10 @@ class NDModel extends Model {
     isHintAvail = value;
   }
 
+  int getCurrentLevel() {
+    return currLevel ?? 1;
+  }
+
   void nextLevel() {
     currLevel++;
     notifyListeners();
