@@ -99,7 +99,8 @@ class _MainScreenState extends State<MainScreen> {
             Expanded(
               child: ScopedModelDescendant<NDModel>(
                   builder: (context, _, model) =>
-                      Text(model.currLevel.toString())),
+                      Image(image: AssetImage('assets/level' +
+                          model.currLevel.toString()),)),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
