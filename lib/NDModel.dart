@@ -6,12 +6,18 @@ class NDModel extends Model {
   bool isHintAvail;
   bool isMusicEnabled;
   bool isSoundEnabled;
+  bool isNextLevelAvail = false;
+  bool isLastLevelAvail;
 
   NDModel() {
     SharedPreferencesHelper.getHighestAvailLevel()
-        .then((int value) {currLevel = value;});
+        .then((int value) {
+          currLevel = value;
+          isLastLevelAvail = currLevel > 1;
+        });
     SharedPreferencesHelper.getIsHintAvail(currLevel)
         .then((bool value) {isHintAvail = value;});
+
     notifyListeners();
   }
 
@@ -23,15 +29,25 @@ class NDModel extends Model {
     return currLevel ?? 1;
   }
 
-  void nextLevel() {
-    currLevel++;
+  void setCurrentLevel(int level) {
+    currLevel = level;
+    SharedPreferencesHelper.getIsHintAvail(currLevel)
+        .then((bool value) {isHintAvail = value;});
     SharedPreferencesHelper.getHighestAvailLevel().then((int value) {
       if (currLevel > value ) {
         SharedPreferencesHelper.setHighestAvailLevel(currLevel);
       }
+      isNextLevelAvail = currLevel < value;
     });
-    SharedPreferencesHelper.getIsHintAvail(currLevel)
-        .then((bool value) {isHintAvail = value;});
+    isLastLevelAvail = currLevel > 1;
     notifyListeners();
+  }
+
+  void lastLevel() {
+    setCurrentLevel(currLevel-1);
+  }
+
+  void nextLevel() {
+    setCurrentLevel(currLevel+1);
   }
 }
