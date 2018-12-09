@@ -10,7 +10,7 @@ const appId = "ca-app-pub-9951612794243198~4065402206";
 const hintUnitId = "ca-app-pub-9951612794243198/4939500178";
 const targetingInfo = MobileAdTargetingInfo(
     keywords: <String>['Games', 'Puzzles'],
-    testDevices: <String>['75A50BE43F94390E3CA8FA21CBC4578E']);
+    testDevices: <String>[]);
 
 void main() {
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
