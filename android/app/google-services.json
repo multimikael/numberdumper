@@ -1,0 +1,43 @@
+{
+  "project_info": {
+    "project_number": "138480976022",
+    "firebase_url": "https://numberdumper-c6277.firebaseio.com",
+    "project_id": "numberdumper-c6277",
+    "storage_bucket": "numberdumper-c6277.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:138480976022:android:a1b89b1aff5d7f82",
+        "android_client_info": {
+          "package_name": "net.multimikael.numberdumper"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "138480976022-pc6qrq0dblrpvk0lep9pq1v2d07njhu5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCKkLYtht2EFEDXHoEyuXzng2IKfQQrKjI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      },
+      "admob_app_id": "ca-app-pub-9951612794243198~4065402206"
+    }
+  ],
+  "configuration_version": "1"
+}

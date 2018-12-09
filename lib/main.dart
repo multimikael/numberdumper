@@ -4,12 +4,21 @@ import 'package:numberdumper/NDModel.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:numberdumper/settings_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:firebase_admob/firebase_admob.dart';
+
+const appId = "ca-app-pub-9951612794243198~4065402206";
+const hintUnitId = "ca-app-pub-9951612794243198/4939500178";
+const targetingInfo = MobileAdTargetingInfo(
+    keywords: <String>['Games', 'Puzzles'],
+    testDevices: <String>['75A50BE43F94390E3CA8FA21CBC4578E']);
 
 void main() {
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) {
         runApp(NDApp());
       });
+  FirebaseAdMob.instance.initialize(appId: appId);
+  RewardedVideoAd.instance.load(adUnitId: hintUnitId, targetingInfo: targetingInfo);
 }
 
 class NDApp extends StatelessWidget {
@@ -106,8 +115,15 @@ class _MainScreenState extends State<MainScreen> {
                           if (model.isHintAvail) {
                             _showHintDialog();
                           } else {
-                            model.setIsHintAvail(true);
-                            _showHintDialog();
+                            RewardedVideoAd.instance.listener =
+                                (RewardedVideoAdEvent event,
+                                {String rewardType, int rewardAmount}) {
+                              if (event == RewardedVideoAdEvent.rewarded) {
+                                model.setIsHintAvail(true);
+                                _showHintDialog();
+                              }
+                            };
+                            RewardedVideoAd.instance.show();
                           }
                         }),
               ),
