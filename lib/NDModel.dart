@@ -30,6 +30,8 @@ class NDModel extends Model {
         SharedPreferencesHelper.setHighestAvailLevel(currLevel);
       }
     });
+    SharedPreferencesHelper.getIsHintAvail(currLevel)
+        .then((bool value) {isHintAvail = value;});
     notifyListeners();
   }
 }

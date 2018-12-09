@@ -62,6 +62,29 @@ class _MainScreenState extends State<MainScreen> {
     return btns;
   }
 
+  Future<void> _showHintDialog() async {
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+              children: <Widget>[
+                Container(
+                  constraints: BoxConstraints(maxHeight: 300.0),
+                  child: GestureDetector(
+                    onTap: () {Navigator.pop(context);},
+                    child: ScopedModelDescendant<NDModel>(
+                        builder: (context, _, model) =>
+                            SvgPicture.asset(
+                              'assets/hints/hintlevel' +
+                                  model.getCurrentLevel().toString() + '.svg',
+                              fit: BoxFit.fitHeight,)),
+                  )
+                )
+              ]);
+        });
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,9 +104,10 @@ class _MainScreenState extends State<MainScreen> {
                           print(model.isHintAvail);
                           print(model.getCurrentLevel());
                           if (model.isHintAvail) {
-                            //TODO: Show hint
+                            _showHintDialog();
                           } else {
                             model.setIsHintAvail(true);
+                            _showHintDialog();
                           }
                         }),
               ),
