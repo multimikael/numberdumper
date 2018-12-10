@@ -8,6 +8,7 @@ class NDModel extends Model {
   bool isSoundEnabled;
   bool isNextLevelAvail = false;
   bool isLastLevelAvail;
+  static const MAX_LEVEL = 24;
 
   NDModel() {
     SharedPreferencesHelper.getHighestAvailLevel()

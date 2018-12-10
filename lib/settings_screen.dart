@@ -37,6 +37,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onPressed: null);
   }
 
+  Widget _currLevelText(NDModel model) {
+    return model.currLevel > 24
+        ? Text("FINISH", style: textStyle)
+        : Text(model.currLevel.toString(), style: textStyle);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,7 +56,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
                     _backButton(model),
-                    Text(model.currLevel.toString(), style: textStyle,),
+                    _currLevelText(model),
                     _forwardButton(model)
                   ],
                 )),
