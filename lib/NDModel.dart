@@ -23,6 +23,8 @@ class NDModel extends Model {
 
   void setIsHintAvail(bool value) {
     isHintAvail = value;
+    SharedPreferencesHelper.setIsHintAvail(currLevel, value);
+    notifyListeners();
   }
 
   int getCurrentLevel() {
@@ -32,7 +34,7 @@ class NDModel extends Model {
   void setCurrentLevel(int level) {
     currLevel = level;
     SharedPreferencesHelper.getIsHintAvail(currLevel)
-        .then((bool value) {isHintAvail = value;});
+        .then((bool value) {setIsHintAvail(value);});
     SharedPreferencesHelper.getHighestAvailLevel().then((int value) {
       if (currLevel > value ) {
         SharedPreferencesHelper.setHighestAvailLevel(currLevel);

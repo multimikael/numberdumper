@@ -18,7 +18,8 @@ void main() {
         runApp(NDApp());
       });
   FirebaseAdMob.instance.initialize(appId: appId);
-  RewardedVideoAd.instance.load(adUnitId: hintUnitId, targetingInfo: targetingInfo);
+  RewardedVideoAd.instance.load(adUnitId: hintUnitId,
+      targetingInfo: targetingInfo);
 }
 
 class NDApp extends StatelessWidget {
@@ -115,15 +116,21 @@ class _MainScreenState extends State<MainScreen> {
                           if (model.isHintAvail) {
                             _showHintDialog();
                           } else {
-                            RewardedVideoAd.instance.listener =
-                                (RewardedVideoAdEvent event,
-                                {String rewardType, int rewardAmount}) {
-                              if (event == RewardedVideoAdEvent.rewarded) {
-                                model.setIsHintAvail(true);
-                                _showHintDialog();
-                              }
-                            };
-                            RewardedVideoAd.instance.show();
+                            RewardedVideoAd.instance.load(
+                                adUnitId: hintUnitId,
+                                targetingInfo: targetingInfo).then((value) {
+                              RewardedVideoAd.instance.listener =
+                                  (RewardedVideoAdEvent event,
+                                  {String rewardType, int rewardAmount}) {
+                                print(rewardType);
+                                if (event == RewardedVideoAdEvent.rewarded) {
+                                  RewardedVideoAd.instance.listener = null;
+                                  model.setIsHintAvail(true);
+                                  _showHintDialog();
+                                }
+                              };
+                              RewardedVideoAd.instance.show();
+                            });
                           }
                         }),
               ),
