@@ -1,8 +1,3 @@
-# numberdumper
+# NumberDumper
 
-Math Puzzle app
-
-## Getting Started
-
-For help getting started with Flutter, view our online
-[documentation](https://flutter.io/).
+NumberDumper is a math puzzle app created for a school project. The group consists of Malthe Kubel Reuber, Christian Magnus Hansen and Mikael Zhang.
