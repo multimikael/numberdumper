@@ -72,6 +72,36 @@ class _MainScreenState extends State<MainScreen> {
     return btns;
   }
 
+  Widget _hintButton(model) {
+    RewardedVideoAd.instance.load(
+        adUnitId: hintUnitId,
+        targetingInfo: targetingInfo);
+    RewardedVideoAd.instance.listener =
+        (RewardedVideoAdEvent event,
+        {String rewardType, int rewardAmount}) {
+      print(rewardType);
+      if (event == RewardedVideoAdEvent.rewarded) {
+        RewardedVideoAd.instance.listener = null;
+        model.setIsHintAvail(true);
+        _showHintDialog();
+        RewardedVideoAd.instance.load(
+            adUnitId: hintUnitId,
+            targetingInfo: targetingInfo);
+      }
+    };
+    return FlatButton(child: Text("Hint",
+        style: textStyle),
+        onPressed: () {
+          print(model.isHintAvail);
+          print(model.getCurrentLevel());
+          if (model.isHintAvail) {
+            _showHintDialog();
+          } else {
+            RewardedVideoAd.instance.show();
+          }
+        });
+  }
+
   Future<void> _showHintDialog() async {
     await showDialog(
         context: context,
@@ -108,31 +138,7 @@ class _MainScreenState extends State<MainScreen> {
             children: <Widget>[
               ScopedModelDescendant<NDModel>(
                 builder: (context, _, model) =>
-                    FlatButton(child: Text("Hint",
-                        style: textStyle),
-                        onPressed: () {
-                          print(model.isHintAvail);
-                          print(model.getCurrentLevel());
-                          if (model.isHintAvail) {
-                            _showHintDialog();
-                          } else {
-                            RewardedVideoAd.instance.load(
-                                adUnitId: hintUnitId,
-                                targetingInfo: targetingInfo).then((value) {
-                              RewardedVideoAd.instance.listener =
-                                  (RewardedVideoAdEvent event,
-                                  {String rewardType, int rewardAmount}) {
-                                print(rewardType);
-                                if (event == RewardedVideoAdEvent.rewarded) {
-                                  RewardedVideoAd.instance.listener = null;
-                                  model.setIsHintAvail(true);
-                                  _showHintDialog();
-                                }
-                              };
-                              RewardedVideoAd.instance.show();
-                            });
-                          }
-                        }),
+                    _hintButton(model)
               ),
               FlatButton(child: Text("Settings",
                   style: textStyle),
